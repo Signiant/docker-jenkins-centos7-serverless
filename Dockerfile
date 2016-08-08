@@ -13,24 +13,25 @@ COPY yum-packages.list /tmp/yum.packages.list
 RUN chmod +r /tmp/yum.packages.list
 RUN yum install -y -q `cat /tmp/yum.packages.list`
 
+# Update pip
+RUN pip install --upgrade pip
+
+# Install the AWS CLI - used by some build processes
+RUN pip install awscli
+
 # Clean the npm cache - prevents dependancy errors
 RUN rm -rf $HOME/.npm
 RUN npm cache clean
 
-# Update node and npm
 RUN npm install -g npm
-RUN npm install -g bower
-RUN npm install -g grunt
-RUN npm install -g grunt-cli
 RUN npm install -g n
 
 # Use node v4.4.2
+RUN n 4.4.2
 
-# We have to use this fixed version otherwise we get fatal error: socket hang up errors
-RUN npm install -g grunt-connect-proxy@0.1.10
-
-# Install the AWS CLI - used by some build processes
-RUN pip install awscli
+RUN npm install -g grunt
+RUN npm install -g grunt-cli
+RUN npm install -g serverless@0.5.6
 
 # Make sure anything/everything we put in the build user's home dir is owned correctly
 RUN chown -R $BUILD_USER:$BUILD_USER_GROUP /home/$BUILD_USER
